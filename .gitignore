@@ -1,0 +1,21 @@
+# Variáveis de ambiente — NUNCA commitar
+.env
+.env.*
+!.env.example
+
+# Dependências
+node_modules/
+
+# Build
+dist/
+build/
+.next/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db
