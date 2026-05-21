@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inbox Springland · Admin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #FFD90F 0%, #F4A100 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #1a1a1a;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .header {
+      background: #1a1a1a;
+      color: #FFD90F;
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .header h1 {
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header .badge {
+      display: inline-block;
+      background: #2ecc71;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-left: 12px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .header p { margin-top: 8px; opacity: 0.8; font-size: 14px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-left: 4px solid #FFD90F;
+    }
+    .card .label {
+      font-size: 13px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .card .valor {
+      font-size: 36px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .section {
+      background: white;
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      font-size: 22px;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #fafafa;
+      font-size: 13px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .tag-admin { background: #ff6b6b; color: white; }
+    .tag-atendente { background: #4ecdc4; color: white; }
+    .tag-ativo { background: #2ecc71; color: white; }
+
+    .acoes {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #1a1a1a;
+      color: #FFD90F;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+    .btn-outline {
+      background: white;
+      color: #1a1a1a;
+      border: 2px solid #1a1a1a;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 20px;
+      color: #1a1a1a;
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    .loading { color: #999; font-style: italic; }
+    .success { color: #2ecc71; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <h1>
+        🍔 Inbox Springland
+        <span class="badge">● ONLINE</span>
+      </h1>
+      <p>Sistema unificado de atendimento · WhatsApp + Instagram</p>
+    </div>
+
+    <div class="grid" id="stats">
+      <div class="card">
+        <div class="label">👥 Atendentes</div>
+        <div class="valor" id="stat-atendentes">--</div>
+      </div>
+      <div class="card">
+        <div class="label">💬 Conversas Abertas</div>
+        <div class="valor" id="stat-conversas">--</div>
+      </div>
+      <div class="card">
+        <div class="label">📨 Mensagens Total</div>
+        <div class="valor" id="stat-mensagens">--</div>
+      </div>
+      <div class="card">
+        <div class="label">📞 Contatos</div>
+        <div class="valor" id="stat-contatos">--</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>👥 Atendentes Cadastrados</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Função</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="lista-atendentes">
+          <tr><td colspan="5" class="loading">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>🧪 Testar Sistema</h2>
+      <p style="color: #666; margin-bottom: 16px;">Simula uma mensagem chegando (até a Meta API estar conectada):</p>
+      <div class="acoes">
+        <button class="btn" onclick="criarConversaTeste()">+ Criar Conversa de Teste</button>
+        <button class="btn btn-outline" onclick="atualizar()">🔄 Atualizar Dados</button>
+        <button class="btn btn-outline" onclick="window.open('/health')">🩺 Ver Health Check</button>
+      </div>
+      <p id="teste-result" style="margin-top: 16px;"></p>
+    </div>
+
+    <div class="footer">
+      Inbox Springland v0.2.0 · Backend rodando em <strong>chat.chatgruporango.tech</strong><br>
+      Em breve: frontend completo + integração WhatsApp/Instagram
+    </div>
+
+  </div>
+
+  <script>
+    async function carregar() {
+      try {
+        const [stats, atendentes] = await Promise.all([
+          fetch('/api/stats').then(r => r.json()),
+          fetch('/api/atendentes').then(r => r.json())
+        ]);
+
+        document.getElementById('stat-atendentes').textContent = stats.atendentes;
+        document.getElementById('stat-conversas').textContent = stats.conversas_abertas;
+        document.getElementById('stat-mensagens').textContent = stats.mensagens_total;
+        document.getElementById('stat-contatos').textContent = stats.contatos;
+
+        const tbody = document.getElementById('lista-atendentes');
+        if (atendentes.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="loading">Nenhum atendente cadastrado.</td></tr>';
+        } else {
+          tbody.innerHTML = atendentes.map(a => `
+            <tr>
+              <td>${a.id}</td>
+              <td><strong>${a.nome}</strong></td>
+              <td>${a.email}</td>
+              <td><span class="tag tag-${a.role}">${a.role}</span></td>
+              <td><span class="tag tag-ativo">● Ativo</span></td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {
+        console.error(e);
+        document.getElementById('lista-atendentes').innerHTML =
+          '<tr><td colspan="5" style="color:red;">Erro ao carregar.</td></tr>';
+      }
+    }
+
+    async function criarConversaTeste() {
+      const result = document.getElementById('teste-result');
+      result.textContent = '⏳ Criando...';
+      try {
+        const r = await fetch('/api/teste/conversa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: 'Cliente Teste ' + Math.floor(Math.random() * 1000),
+            telefone: '1199' + Math.floor(Math.random() * 10000000),
+            mensagem: 'Oi, tenho interesse no combo!'
+          })
+        });
+        const data = await r.json();
+        result.innerHTML = `<span class="success">✅ Conversa criada! ID: ${data.conversa_id}</span>`;
+        carregar();
+      } catch (e) {
+        result.textContent = '❌ Erro: ' + e.message;
+      }
+    }
+
+    function atualizar() { carregar(); }
+
+    carregar();
+    setInterval(carregar, 10000);
+  </script>
+</body>
+</html>
