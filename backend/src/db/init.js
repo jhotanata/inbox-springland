@@ -72,6 +72,43 @@ CREATE INDEX IF NOT EXISTS idx_contatos_telefone ON contatos(telefone);
 
 db.exec(schema);
 
+// ============ MIGRAÇÕES (ALTER TABLE) ============
+// SQLite falha silenciosamente se coluna já existe — cada um em try/catch
+
+const migracoes = [
+  // Contatos
+  `ALTER TABLE contatos ADD COLUMN whatsapp_phone TEXT`,
+  `ALTER TABLE contatos ADD COLUMN instagram_username TEXT`,
+  `ALTER TABLE contatos ADD COLUMN avatar_url TEXT`,
+  // Conversas
+  `ALTER TABLE conversas ADD COLUMN canal_id TEXT`,
+  `ALTER TABLE conversas ADD COLUMN page_id TEXT`,
+  // Mensagens
+  `ALTER TABLE mensagens ADD COLUMN meta_message_id TEXT`,
+  `ALTER TABLE mensagens ADD COLUMN anexo_url TEXT`,
+  `ALTER TABLE mensagens ADD COLUMN status TEXT DEFAULT 'enviada'`,
+];
+
+for (const sql of migracoes) {
+  try { db.exec(sql); } catch (e) { /* coluna já existe, ignorar */ }
+}
+
+// Tabela de logs de webhook
+db.exec(`
+  CREATE TABLE IF NOT EXISTS webhook_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    canal TEXT NOT NULL,
+    evento TEXT,
+    payload TEXT,
+    processado INTEGER DEFAULT 0,
+    erro TEXT,
+    recebido_em DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_msg_meta_id ON mensagens(meta_message_id);
+  CREATE INDEX IF NOT EXISTS idx_contato_whatsapp ON contatos(whatsapp_phone);
+  CREATE INDEX IF NOT EXISTS idx_contato_instagram ON contatos(instagram_username);
+`);
+
 console.log('✅ Banco SQLite inicializado em:', DB_PATH);
 
 module.exports = db;
